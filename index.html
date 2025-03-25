@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background: url('s.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .btn-present {
+            background-color: #4caf50;
+            color: white;
+        }
+        .btn-absent {
+            background-color: #f44336;
+            color: white;
+        }
+        .attendance-list {
+            margin-top: 20px;
+        }
+        .subject-card {
+            background: #ffffff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .total-average {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Attendance Calculator</h2>
+        <input type="text" id="subject" placeholder="Enter Subject" />
+        <button onclick="addSubject()">Add Subject</button>
+        <div class="attendance-list" id="attendanceList"></div>
+        <div class="total-average" id="totalAverage">Total 15-Day Average: 0%</div>
+    </div>
+    
+    <script>
+        let subjects = [];
+        
+        function addSubject() {
+            let subjectName = document.getElementById('subject').value;
+            if (subjectName) {
+                subjects.push({ name: subjectName, attendance: [] });
+                document.getElementById('subject').value = '';
+                renderSubjects();
+            }
+        }
+        
+        function renderSubjects() {
+            let list = document.getElementById('attendanceList');
+            list.innerHTML = '';
+            subjects.forEach((subject, index) => {
+                let totalDays = subject.attendance.length;
+                let presentDays = subject.attendance.filter(day => day).length;
+                let percentage = totalDays ? (presentDays / totalDays * 100).toFixed(2) : 0;
+                let todayStatus = subject.attendance.length ? (subject.attendance[subject.attendance.length - 1] ? "Present" : "Absent") : "Not Marked";
+                
+                list.innerHTML += `<div class="subject-card">
+                    <h4>${subject.name}</h4>
+                    <button class="btn-present" onclick="markAttendance(${index}, true)">Present</button>
+                    <button class="btn-absent" onclick="markAttendance(${index}, false)">Absent</button>
+                    <p>Today's Attendance: ${todayStatus}</p>
+                    <p>15-Day Average: ${percentage}%</p>
+                </div>`;
+            });
+            updateTotalAverage();
+        }
+        
+        function markAttendance(index, isPresent) {
+            if (subjects[index].attendance.length >= 15) {
+                subjects[index].attendance.shift();
+            }
+            subjects[index].attendance.push(isPresent);
+            renderSubjects();
+        }
+        
+        function updateTotalAverage() {
+            let totalPercentage = subjects.reduce((sum, subject) => {
+                let totalDays = subject.attendance.length;
+                let presentDays = subject.attendance.filter(day => day).length;
+                let percentage = totalDays ? (presentDays / totalDays * 100) : 0;
+                return sum + percentage;
+            }, 0);
+            let average = subjects.length ? (totalPercentage / subjects.length).toFixed(2) : 0;
+            document.getElementById('totalAverage').innerText = `Total 15-Day Average: ${average}%`;
+        }
+    </script>
+</body>
+</html>
